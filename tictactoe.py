@@ -45,6 +45,14 @@ class Board(object):
         return self._printer()
 
 
+class PlayerError(Exception):
+    pass
+
+
+class MarkerError(Exception):
+    pass
+
+
 class TypeConstraint(object):
     def __init__(self, constraint):
         self.constraint = constraint
@@ -58,14 +66,6 @@ class TypeConstraint(object):
             raise PlayerError('Not a valid name')
         else:
             self.data[instance] = value
-
-
-class PlayerError(Exception):
-    pass
-
-
-class MarkerError(Exception):
-    pass
 
 
 class MarkerConstraint(TypeConstraint):
