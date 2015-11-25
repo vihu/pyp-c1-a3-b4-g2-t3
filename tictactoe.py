@@ -14,45 +14,106 @@ import weakref
 
 
 class Board(object):
-    def __init__(self):
-        self.board = [[None]*3]*3
-        self._a = self.board[0]
-        self._b = self.board[1]
-        self._c = self.board[2]
+    ''' Board class, takes in a player1 object and player2 object
+        Creates an empty board like:
+            None None None --> A1 A2 A3
+            None None None --> B1 B2 B3
+            None None None --> C1 C2 C3
+    '''
+    def __init__(self, player1, player2):
+        self.p1 = player1
+        self.p2 = player2
+        self.A1, self.A2, self.A3 = [None]*3
+        self.B1, self.B2, self.B3 = [None]*3
+        self.C1, self.C2, self.C3 = [None]*3
+        self.board = [self.A1, self.A2, self.A3,
+                      self.B1, self.B2, self.B3,
+                      self.C1, self.C2, self.C3]
+
+    def _printer(self):
+        return "{a1}\t{a2}\t{a3}\n"\
+                "{b1}\t{b2}\t{b3}\n"\
+                "{c1}\t{c2}\t{c3}\n".format(a1=self.A1, a2=self.A2, a3=self.A3,
+                                            b1=self.A1, b2=self.A2, b3=self.A3,
+                                            c1=self.A1, c2=self.A2, c3=self.A3
+                                            )
+
+    def __str__(self):
+        return self._printer()
+
+    def __repr__(self):
+        return self._printer()
 
 
-class MarkerError(Exception):
-    pass
-
-
-class MarkerDescriptor(object):
-    def __init__(self):
+class TypeConstraint(object):
+    def __init__(self, constraint):
+        self.constraint = constraint
         self.data = weakref.WeakKeyDictionary()
 
     def __get__(self, instance, owner):
         return self.data[instance]
 
     def __set__(self, instance, value):
-        if value not in ['X', 'x', 'o', 'O']:
-            raise MarkerError('Only Xs and Os are allowed in tic tac toe')
+        if not isinstance(value, self.constraint):
+            raise PlayerError('Not a valid name')
         else:
             self.data[instance] = value
 
 
-class Mark(object):
-    # use X or O as markers
-    marker = MarkerDescriptor()
+class PlayerError(Exception):
+    pass
 
-    def __init__(self, marker):
-        self.marker = marker
 
-    def __repr__(self):
-        return 'Mark({})'.format(self.marker)
+class MarkerError(Exception):
+    pass
+
+
+class MarkerConstraint(TypeConstraint):
+    def __set__(self, instance, value):
+        if value not in ['X', 'x', 'O', 'o']:
+            raise MarkerError('Only x and o allowed for markers.')
+        else:
+            self.data[instance] = value
 
 
 class Player(object):
-    def __init__(self, choice):
-        self.choice = Mark(choice)
+    ''' Player class, take in a name(str), and a marker(x/o)
+    '''
+    name = TypeConstraint(str)
+    marker = MarkerConstraint(str)
+
+    def __init__(self, name, marker):
+        self.marker = marker
+        self.name = name
 
     def __repr__(self):
-        return 'Player({})'.format(self.choice)
+        return 'Player({n},{m})'.format(n=self.name, m=self.marker)
+
+
+def play():
+    ''' backgound: create board.
+                   create players
+        ask player1 for x or o
+            assign player 2 the remaining of [x/o]
+        until (victory of p1/p2) or draw (no place in board is None and no victory ):
+            keep asking for turns from p1, p2 alternatively
+    '''
+
+    mlist = ['x', 'o']
+    n1, m1 = str(raw_input('Player 1, enter name and marker: ')).split()
+    n2 = str(raw_input('Player 2, enter name: '))
+    if m1 == mlist[0]:
+        m2 = mlist[1]
+    else:
+        m2 = mlist[0]
+    print '{p} your marker is set to {m}'.format(p=n2, m=m2)
+
+    p1 = Player(n1, m1)
+    p2 = Player(n2, m2)
+
+    board = Board(p1, p2)
+    print board
+
+
+if __name__ == '__main__':
+    play()
