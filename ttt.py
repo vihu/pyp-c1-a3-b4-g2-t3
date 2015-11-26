@@ -32,9 +32,10 @@ class Board(object):
 
     def _printer(self):
         b = self.board
-        print "\n_{}_|_{}_|_{}_".format(b['A1'], b['A2'], b['A3'])
-        print "_{}_|_{}_|_{}_".format(b['B1'], b['B2'], b['B3'])
-        print "_{}_|_{}_|_{}_\n".format(b['C1'], b['C2'], b['C3'])
+        return ("\n_{}_|_{}_|_{}_".format(b['A1'], b['A2'], b['A3']) + '\n'
+                "_{}_|_{}_|_{}_".format(b['B1'], b['B2'], b['B3']) + '\n'
+                "_{}_|_{}_|_{}_\n".format(b['C1'], b['C2'], b['C3'])
+                )
 
     def __str__(self):
         return str(self._printer())
