@@ -28,10 +28,13 @@ class Board(object):
         self.p1 = player1
         self.p2 = player2
         self._inputs = ['A1', 'A2', 'A3', 'B1', 'B2', 'B3', 'C1', 'C2', 'C3']
-        self.board = {i: None for i in self._inputs}
+        self.board = {i: ' ' for i in self._inputs}
 
     def _printer(self):
-        return self.board
+        b = self.board
+        print "\n_{}_|_{}_|_{}_".format(b['A1'], b['A2'], b['A3'])
+        print "_{}_|_{}_|_{}_".format(b['B1'], b['B2'], b['B3'])
+        print "_{}_|_{}_|_{}_\n".format(b['C1'], b['C2'], b['C3'])
 
     def __str__(self):
         return str(self._printer())
@@ -46,9 +49,8 @@ class Board(object):
             return MoveError('Correct set of inputs are: {}'.
                              format(self._inputs))
         else:
-            if self.board[move] is None:
+            if self.board[move] is ' ':
                 self.board[move] = player.marker
-                print self.board
             else:
                 print MoveError('Input already occupied')
                 return MoveError('Input already occupied')
@@ -126,29 +128,14 @@ def initialize_game():
 
     print '{p} your marker is set to {m}'.format(p=n1, m=m1)
     print '{p} your marker is set to {m}'.format(p=n2, m=m2)
-    print
-    print 'Let the game begin...'
-    print
+
+    print '\n Let the game begin... \n'
 
     p1 = Player(n1, m1)
     p2 = Player(n2, m2)
 
     board = Board(p1, p2)
     return board
-
-
-def check_victory(player, board):
-
-    victory_combos = [[0, 1, 2], [3, 4, 5], [6, 7, 8],
-                      [0, 3, 6], [1, 4, 7], [2, 5, 8],
-                      [0, 4, 8], [2, 4, 6]]
-
-    for combo in victory_combos:
-        check = all(board[e] == player.marker for e in combo)
-        if check:
-            print "Player {n} has won!.".format(n=player.name)
-            return True
-    return False
 
 
 def whose_turn():
@@ -162,14 +149,32 @@ def whose_turn():
             break
 
 
+def check_victory(player, board):
+    ''' Iterating through a list of winning combinations, perform a
+    check to see that all values are equal. Returns True or False '''
+
+    victory_combos = [['A1', 'A2', 'A3'], ['B1', 'B2', 'B3'],
+                      ['C1', 'C2', 'C3'], ['A1', 'B1', 'C1'], ['A2', 'B2', 'C2'],
+                      ['A3', 'B3', 'C3'], ['A1', 'B2', 'C3'], ['A1', 'B2', 'C3']]
+
+    for combo in victory_combos:
+        check = all(board[e] == player.marker for e in combo)
+        if check:
+            print "Player {n} has won!.".format(n=player.name)
+            print board
+            return True
+    return False
+
+
 def play():
-    ''' until (victory of p1/p2) or draw (no place in board is None and no victory)
+    ''' until (victory of p1/p2) or draw (no place in board is ' ' and no victory)
         keep asking for turns from p1, p2 alternatively
     '''
     b = initialize_game()
-    print b
 
     for turn in whose_turn():
+        print b
+
         if turn == 1:
             # player one makes a move
             p1move = raw_input('{p1} make your move: '.format(p1=b.p1.name))
@@ -178,6 +183,7 @@ def play():
                                    format(p1=b.p1.name))
             if check_victory(b.p1, b.board):
                 break
+
         else:
             # player two makes a move
             p2move = raw_input('{p2} make your move: '.format(p2=b.p2.name))
@@ -186,7 +192,9 @@ def play():
                                    format(p2=b.p2.name))
             if check_victory(b.p2, b.board):
                 break
-    print 'Game Over'
+
+    print b
+    print "Game Over."
     return
 
 
